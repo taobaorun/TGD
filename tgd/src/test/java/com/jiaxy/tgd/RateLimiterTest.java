@@ -52,22 +52,24 @@ public class RateLimiterTest {
     @Test
     public void testMultiFFBGetToken() throws Exception {
         final RateLimiter limiter = RateLimiter.builder().
-                withToekPerSecond(1).
+                withToekPerSecond(150000).
                 withType(RateLimiter.RateLimiterType.FFTB).
                 build();
         final CountDownLatch latch = new CountDownLatch(3);
         for ( int j = 0 ;j < 3;j++){
              new Thread(new Runnable() {
                 public void run() {
+                    System.out.println(Thread.currentThread().getId()+"-thread-start.================="+new Date());
+                    boolean print=false;
                      for ( long i = 0 ;i < Long.MAX_VALUE;i++){
                         try {
                             limiter.getToken(1);
-                            System.out.println(Thread.currentThread().getId()+"-thread-"+i+".================="+new Date());
-                        } catch (Exception e){
-                            try {
-                                Thread.sleep(500);
-                            } catch (InterruptedException e1) {
+                            if (!print){
+                                System.out.println(Thread.currentThread().getId()+"-thread-"+i+".================="+new Date());
+                                print = true;
                             }
+                        } catch (Exception e){
+//                            System.out.println(e.getMessage());
                         }
                     }
                     latch.countDown();
