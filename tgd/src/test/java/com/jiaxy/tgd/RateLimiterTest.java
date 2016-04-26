@@ -3,6 +3,7 @@ package com.jiaxy.tgd;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Title: <br>
@@ -54,13 +55,14 @@ public class RateLimiterTest {
                 withToekPerSecond(1).
                 withType(RateLimiter.RateLimiterType.FFTB).
                 build();
+        final CountDownLatch latch = new CountDownLatch(3);
         for ( int j = 0 ;j < 3;j++){
              new Thread(new Runnable() {
                 public void run() {
                      for ( long i = 0 ;i < Long.MAX_VALUE;i++){
                         try {
                             limiter.getToken(1);
-                            System.out.println(i+".================="+new Date());
+                            System.out.println(Thread.currentThread().getId()+"-thread-"+i+".================="+new Date());
                         } catch (Exception e){
                             try {
                                 Thread.sleep(500);
@@ -68,8 +70,10 @@ public class RateLimiterTest {
                             }
                         }
                     }
+                    latch.countDown();
                 }
             }).start();
         }
+        latch.await();
     }
 }

@@ -27,8 +27,6 @@ public class FailFastTokenBucketLimiter extends RateLimiter {
     @Override
     public void syncAvailableToken(double nowMicros) {
         if (nowMicros > nextGenTokenMicros){
-            System.out.println("-----nowMicros---"+nowMicros);
-            System.out.println("-----next---"+nextGenTokenMicros);
             double newTokens = (nowMicros - nextGenTokenMicros) / stableIntervalTokenMicros;
             availableToken = Math.min(maxToken,availableToken + newTokens);
             nextGenTokenMicros = nowMicros;
