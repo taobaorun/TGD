@@ -36,7 +36,7 @@ public class RateLimiterTest {
                 withToekPerSecond(1).
                 withType(RateLimiter.RateLimiterType.FFTB).
                 build();
-        for ( int i = 0 ;i < 1000;i++){
+        for ( long i = 0 ;i < Long.MAX_VALUE;i++){
             try {
                 limiter.getToken(1);
                 System.out.println(i+".================="+new Date());
@@ -45,6 +45,31 @@ public class RateLimiterTest {
 //                e.printStackTrace()
                 System.out.println(e.getMessage());
             }
+        }
+    }
+
+    @Test
+    public void testMultiFFBGetToken() throws Exception {
+        final RateLimiter limiter = RateLimiter.builder().
+                withToekPerSecond(1).
+                withType(RateLimiter.RateLimiterType.FFTB).
+                build();
+        for ( int j = 0 ;j < 3;j++){
+             new Thread(new Runnable() {
+                public void run() {
+                     for ( long i = 0 ;i < Long.MAX_VALUE;i++){
+                        try {
+                            limiter.getToken(1);
+                            System.out.println(i+".================="+new Date());
+                        } catch (Exception e){
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e1) {
+                            }
+                        }
+                    }
+                }
+            }).start();
         }
     }
 }
