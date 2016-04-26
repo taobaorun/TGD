@@ -1,6 +1,6 @@
 package com.jiaxy.tgd;
 
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Title: <br>
@@ -13,7 +13,7 @@ import static java.util.concurrent.TimeUnit.*;
  *         <br>
  * @since 2016/04/26 21:31
  */
-public class SmoothTokenBucketLimiter extends RateLimiter {
+public class FailFastTokenBucketLimiter extends RateLimiter {
 
     private final Object mutex = new Object();
 
@@ -27,6 +27,8 @@ public class SmoothTokenBucketLimiter extends RateLimiter {
     @Override
     public void syncAvailableToken(double nowMicros) {
         if (nowMicros > nextGenTokenMicros){
+            System.out.println("-----nowMicros---"+nowMicros);
+            System.out.println("-----next---"+nextGenTokenMicros);
             double newTokens = (nowMicros - nextGenTokenMicros) / stableIntervalTokenMicros;
             availableToken = Math.min(maxToken,availableToken + newTokens);
             nextGenTokenMicros = nowMicros;
@@ -35,24 +37,16 @@ public class SmoothTokenBucketLimiter extends RateLimiter {
 
     @Override
     public double getToken(double requiredToken) {
-        double timeToWait;
-        double sleepTime;
-        double oldNextGenTokenMicros;
         double nowMicros = duration();
         synchronized (mutex){
             syncAvailableToken(nowMicros);
-            oldNextGenTokenMicros = nextGenTokenMicros;
             double tokenPermitted = Math.min(requiredToken,availableToken);
             double needNewToken = requiredToken - tokenPermitted;
-            timeToWait = needNewToken * stableIntervalTokenMicros;
-            nextGenTokenMicros =  nextGenTokenMicros + timeToWait;
+            if (needNewToken > 0){
+                throw new LimitedException("no token.needNewToken:"+needNewToken+",tokenPermitted:"+tokenPermitted);
+            }
             availableToken -= tokenPermitted;
         }
-        sleepTime = Math.max( oldNextGenTokenMicros - nowMicros,0 );
-        try {
-            MICROSECONDS.sleep((long)sleepTime);
-        } catch (InterruptedException e) {
-        }
-        return sleepTime;
+        return 0;
     }
 }

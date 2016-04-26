@@ -71,6 +71,8 @@ public abstract class RateLimiter {
                     return (T)buildSmoothTokenBucketLimiter();
                 case LB:
                     return null;
+                case FFTB:
+                    return (T)buildFailFastTokenBucketLimiter();
                 default:
                     return (T)buildSmoothTokenBucketLimiter();
             }
@@ -79,6 +81,13 @@ public abstract class RateLimiter {
 
         private SmoothTokenBucketLimiter buildSmoothTokenBucketLimiter(){
             SmoothTokenBucketLimiter limiter = new SmoothTokenBucketLimiter();
+            limiter.startMicros = MICROSECONDS.convert(System.nanoTime(),NANOSECONDS);
+            limiter.setRate(tokenPerSecond);
+            return limiter;
+        }
+
+        private FailFastTokenBucketLimiter buildFailFastTokenBucketLimiter(){
+            FailFastTokenBucketLimiter limiter = new FailFastTokenBucketLimiter();
             limiter.startMicros = MICROSECONDS.convert(System.nanoTime(),NANOSECONDS);
             limiter.setRate(tokenPerSecond);
             return limiter;
@@ -96,7 +105,13 @@ public abstract class RateLimiter {
         /**
          * leaky bucket
          */
-        LB
+        LB,
+
+
+        /**
+         * 没有可用token 抛出异常的token bucket
+         */
+        FFTB;
     }
 
 

@@ -2,6 +2,8 @@ package com.jiaxy.tgd;
 
 import org.junit.Test;
 
+import java.util.Date;
+
 /**
  * Title: <br>
  * <p>
@@ -17,8 +19,32 @@ public class RateLimiterTest {
 
 
     @Test
-    public void testGetToken() throws Exception {
+    public void testTBGetToken() throws Exception {
+        RateLimiter limiter = RateLimiter.builder().
+                withToekPerSecond(1).
+                withType(RateLimiter.RateLimiterType.TB).
+                build();
+        for ( int i = 0 ;i < 10;i++){
+            limiter.getToken(1);
+            System.out.println(i+".================="+new Date());
+        }
+    }
 
-
+    @Test
+    public void testFFTBGetToken() throws Exception {
+        RateLimiter limiter = RateLimiter.builder().
+                withToekPerSecond(1).
+                withType(RateLimiter.RateLimiterType.FFTB).
+                build();
+        for ( int i = 0 ;i < 1000;i++){
+            try {
+                limiter.getToken(1);
+                System.out.println(i+".================="+new Date());
+            } catch (Exception e){
+                Thread.sleep(500);
+//                e.printStackTrace()
+                System.out.println(e.getMessage());
+            }
+        }
     }
 }
