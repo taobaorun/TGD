@@ -1,5 +1,7 @@
 package com.jiaxy.tgd;
 
+import java.util.concurrent.TimeUnit;
+
 import static java.util.concurrent.TimeUnit.*;
 
 /**
@@ -49,10 +51,29 @@ public class SmoothTokenBucketLimiter extends RateLimiter {
             availableToken -= tokenPermitted;
         }
         sleepTime = Math.max( oldNextGenTokenMicros - nowMicros,0 );
-        try {
-            MICROSECONDS.sleep((long)sleepTime);
-        } catch (InterruptedException e) {
-        }
+        uninterruptibleSleep((long) sleepTime,MICROSECONDS);
         return sleepTime;
+    }
+
+
+    private void uninterruptibleSleep(long sleepTime,TimeUnit unit){
+        boolean interrupted = false;
+        try {
+            long remainingNanos = unit.toNanos(sleepTime);
+            long end = System.nanoTime() + remainingNanos;
+            while (true){
+                try {
+                    NANOSECONDS.sleep(remainingNanos);
+                    return;
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                    remainingNanos = end - System.nanoTime();
+                }
+            }
+        } finally {
+            if (interrupted){
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }
