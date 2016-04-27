@@ -15,25 +15,10 @@ import static java.util.concurrent.TimeUnit.*;
  *         <br>
  * @since 2016/04/26 21:31
  */
-public class SmoothTokenBucketLimiter extends RateLimiter {
+public class SmoothTokenBucketLimiter extends AbstractTokenBucketLimiter {
 
     private final Object mutex = new Object();
 
-    @Override
-    protected void doSetRate(double tokenPerSecond) {
-        syncAvailableToken(duration());
-        this.maxToken = tokenPerSecond;
-        this.stableIntervalTokenMicros = SECONDS.toMicros(1L) / tokenPerSecond;
-    }
-
-    @Override
-    public void syncAvailableToken(long nowMicros) {
-        if (nowMicros > nextGenTokenMicros){
-            double newTokens = (nowMicros - nextGenTokenMicros) / stableIntervalTokenMicros;
-            availableToken = Math.min(maxToken,availableToken + newTokens);
-            nextGenTokenMicros = nowMicros;
-        }
-    }
 
     @Override
     public double getToken(double requiredToken) {
@@ -44,11 +29,11 @@ public class SmoothTokenBucketLimiter extends RateLimiter {
         synchronized (mutex){
             syncAvailableToken(nowMicros);
             oldNextGenTokenMicros = nextGenTokenMicros;
-            double tokenPermitted = Math.min(requiredToken,availableToken);
+            double tokenPermitted = Math.min(requiredToken, availableTokens);
             double needNewToken = requiredToken - tokenPermitted;
             waitMicros = (long) (needNewToken * stableIntervalTokenMicros);
             nextGenTokenMicros =  nextGenTokenMicros + waitMicros;
-            availableToken -= tokenPermitted;
+            availableTokens -= tokenPermitted;
         }
         sleepTime = Math.max( oldNextGenTokenMicros - nowMicros,0 );
         uninterruptibleSleep(sleepTime,MICROSECONDS);

@@ -16,9 +16,9 @@ import static java.util.concurrent.TimeUnit.*;
  */
 public abstract class RateLimiter {
 
-    protected double maxToken;
+    protected double maxTokens;
 
-    protected double availableToken;
+    protected double availableTokens;
 
     protected long startMicros;
 
@@ -49,7 +49,7 @@ public abstract class RateLimiter {
         return new Builder();
     }
 
-    static class Builder<T extends RateLimiter> {
+    public static class Builder<T extends RateLimiter> {
 
         private double tokenPerSecond;
 
@@ -94,7 +94,7 @@ public abstract class RateLimiter {
         }
     }
 
-    static enum RateLimiterType {
+    public static enum RateLimiterType {
 
         /**
          * token bucket
