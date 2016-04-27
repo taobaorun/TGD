@@ -35,7 +35,7 @@ public class SmoothTokenBucketLimiter extends RateLimiter {
 
     @Override
     public double getToken(double requiredToken) {
-        double timeToWait;
+        double waitMicros;
         double sleepTime;
         double oldNextGenTokenMicros;
         double nowMicros = duration();
@@ -44,8 +44,8 @@ public class SmoothTokenBucketLimiter extends RateLimiter {
             oldNextGenTokenMicros = nextGenTokenMicros;
             double tokenPermitted = Math.min(requiredToken,availableToken);
             double needNewToken = requiredToken - tokenPermitted;
-            timeToWait = needNewToken * stableIntervalTokenMicros;
-            nextGenTokenMicros =  nextGenTokenMicros + timeToWait;
+            waitMicros = needNewToken * stableIntervalTokenMicros;
+            nextGenTokenMicros =  nextGenTokenMicros + waitMicros;
             availableToken -= tokenPermitted;
         }
         sleepTime = Math.max( oldNextGenTokenMicros - nowMicros,0 );
