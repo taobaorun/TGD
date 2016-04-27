@@ -22,7 +22,7 @@ public abstract class RateLimiter {
 
     protected long startMicros;
 
-    protected double nextGenTokenMicros;
+    protected long nextGenTokenMicros;
 
     protected double stableIntervalTokenMicros;
 
@@ -36,7 +36,7 @@ public abstract class RateLimiter {
 
     protected abstract void doSetRate(double tokenPerSecond);
 
-    public abstract void syncAvailableToken(double nowMicros);
+    public abstract void syncAvailableToken(long nowMicros);
 
     public abstract double getToken(double requiredToken);
 

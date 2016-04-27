@@ -27,7 +27,7 @@ public class SmoothTokenBucketLimiter extends RateLimiter {
     }
 
     @Override
-    public void syncAvailableToken(double nowMicros) {
+    public void syncAvailableToken(long nowMicros) {
         if (nowMicros > nextGenTokenMicros){
             double newTokens = (nowMicros - nextGenTokenMicros) / stableIntervalTokenMicros;
             availableToken = Math.min(maxToken,availableToken + newTokens);
@@ -37,21 +37,21 @@ public class SmoothTokenBucketLimiter extends RateLimiter {
 
     @Override
     public double getToken(double requiredToken) {
-        double waitMicros;
-        double sleepTime;
-        double oldNextGenTokenMicros;
-        double nowMicros = duration();
+        long waitMicros;
+        long sleepTime;
+        long oldNextGenTokenMicros;
+        long nowMicros = duration();
         synchronized (mutex){
             syncAvailableToken(nowMicros);
             oldNextGenTokenMicros = nextGenTokenMicros;
             double tokenPermitted = Math.min(requiredToken,availableToken);
             double needNewToken = requiredToken - tokenPermitted;
-            waitMicros = needNewToken * stableIntervalTokenMicros;
+            waitMicros = (long) (needNewToken * stableIntervalTokenMicros);
             nextGenTokenMicros =  nextGenTokenMicros + waitMicros;
             availableToken -= tokenPermitted;
         }
         sleepTime = Math.max( oldNextGenTokenMicros - nowMicros,0 );
-        uninterruptibleSleep((long) sleepTime,MICROSECONDS);
+        uninterruptibleSleep(sleepTime,MICROSECONDS);
         return sleepTime;
     }
 
