@@ -60,7 +60,7 @@ public abstract class RateLimiter {
             return this;
         }
 
-        public Builder withToekPerSecond(double tokenPerSecond){
+        public Builder withTokePerSecond(double tokenPerSecond){
             this.tokenPerSecond = tokenPerSecond;
             return this;
         }

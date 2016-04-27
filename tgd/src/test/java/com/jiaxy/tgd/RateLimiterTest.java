@@ -22,7 +22,7 @@ public class RateLimiterTest {
     @Test
     public void testTBGetToken() throws Exception {
         RateLimiter limiter = RateLimiter.builder().
-                withToekPerSecond(1).
+                withTokePerSecond(1).
                 withType(RateLimiter.RateLimiterType.TB).
                 build();
         for ( int i = 0 ;i < 10;i++){
@@ -34,7 +34,7 @@ public class RateLimiterTest {
     @Test
     public void testFFTBGetToken() throws Exception {
         RateLimiter limiter = RateLimiter.builder().
-                withToekPerSecond(1).
+                withTokePerSecond(1).
                 withType(RateLimiter.RateLimiterType.FFTB).
                 build();
         for ( long i = 0 ;i < Long.MAX_VALUE;i++){
@@ -52,7 +52,7 @@ public class RateLimiterTest {
     @Test
     public void testMultiFFBGetToken() throws Exception {
         final RateLimiter limiter = RateLimiter.builder().
-                withToekPerSecond(150000).
+                withTokePerSecond(150000).
                 withType(RateLimiter.RateLimiterType.FFTB).
                 build();
         final CountDownLatch latch = new CountDownLatch(3);
