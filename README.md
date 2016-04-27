@@ -1,7 +1,7 @@
 TGD:三峡大坝（限流）
 ======================
 
-实例
+Example
 ------
 ```java
         RateLimiter limiter = RateLimiter.builder().
