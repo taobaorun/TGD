@@ -29,7 +29,4 @@ public class LimitedException extends RuntimeException{
         super(cause);
     }
 
-    public LimitedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }
