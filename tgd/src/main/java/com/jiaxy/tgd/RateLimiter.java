@@ -20,7 +20,7 @@ public abstract class RateLimiter {
 
     protected double availableTokens;
 
-    protected long startMicros;
+    protected long startNanos;
 
     protected long nextGenTokenMicros;
 
@@ -44,7 +44,7 @@ public abstract class RateLimiter {
     public abstract double getToken(double requiredToken);
 
     public long duration(){
-        return MICROSECONDS.convert(System.nanoTime(),NANOSECONDS) - startMicros;
+        return MICROSECONDS.convert(System.nanoTime() - startNanos,NANOSECONDS);
     }
 
 
@@ -84,14 +84,14 @@ public abstract class RateLimiter {
 
         private SmoothTokenBucketLimiter buildSmoothTokenBucketLimiter(){
             SmoothTokenBucketLimiter limiter = new SmoothTokenBucketLimiter();
-            limiter.startMicros = MICROSECONDS.convert(System.nanoTime(),NANOSECONDS);
+            limiter.startNanos = System.nanoTime();
             limiter.setRate(tokenPerSecond);
             return limiter;
         }
 
         private FailFastTokenBucketLimiter buildFailFastTokenBucketLimiter(){
             FailFastTokenBucketLimiter limiter = new FailFastTokenBucketLimiter();
-            limiter.startMicros = MICROSECONDS.convert(System.nanoTime(),NANOSECONDS);
+            limiter.startNanos = System.nanoTime();
             limiter.setRate(tokenPerSecond);
             return limiter;
         }

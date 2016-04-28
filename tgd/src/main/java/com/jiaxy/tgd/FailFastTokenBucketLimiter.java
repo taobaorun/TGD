@@ -22,7 +22,7 @@ public class FailFastTokenBucketLimiter extends AbstractTokenBucketLimiter {
             double tokenPermitted = Math.min(requiredToken, availableTokens);
             double needNewToken = requiredToken - tokenPermitted;
             if (needNewToken > 0){
-                throw new LimitedException("no token.needNewToken:"+needNewToken+",tokenPermitted:"+tokenPermitted);
+                throw new LimitedException("no token.needNewToken:"+needNewToken+",tokenPermitted:"+tokenPermitted+",availableToken:"+availableTokens);
             }
             availableTokens -= tokenPermitted;
         }

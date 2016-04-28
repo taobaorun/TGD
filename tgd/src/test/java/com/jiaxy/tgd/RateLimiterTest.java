@@ -2,6 +2,7 @@ package com.jiaxy.tgd;
 
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
@@ -22,29 +23,45 @@ public class RateLimiterTest {
     @Test
     public void testTBGetToken() throws Exception {
         RateLimiter limiter = RateLimiter.builder().
-                withTokePerSecond(1).
+                withTokePerSecond(10).
                 withType(RateLimiter.RateLimiterType.TB).
                 build();
-        for ( int i = 0 ;i < 10;i++){
-            limiter.getToken(1);
-            System.out.println(i+".================="+new Date());
+        int i = 0;
+        while (true) {
+            try {
+                limiter.getToken(1);
+                System.out.println(i+".================="+format(new Date()));
+                i++;
+            } catch (Exception e) {
+            }
+
+            try {
+                Thread.sleep(10);
+            } catch (Exception e) {
+            }
         }
+
     }
 
     @Test
     public void testFFTBGetToken() throws Exception {
         RateLimiter limiter = RateLimiter.builder().
-                withTokePerSecond(1).
+                withTokePerSecond(10).
                 withType(RateLimiter.RateLimiterType.FFTB).
                 build();
-        for ( long i = 0 ;i < Long.MAX_VALUE;i++){
+//        Thread.sleep(4000);
+        int i = 0;
+        while (true) {
             try {
                 limiter.getToken(1);
-                System.out.println(i+".================="+new Date());
-            } catch (Exception e){
-                Thread.sleep(500);
-//                e.printStackTrace()
-                System.out.println(e.getMessage());
+                System.out.println((i++)+".================="+format(new Date()));
+            } catch (Exception e) {
+                //System.out.println(e.getMessage());
+            }
+
+            try {
+                Thread.sleep(10);
+            } catch (Exception e) {
             }
         }
     }
@@ -52,33 +69,42 @@ public class RateLimiterTest {
     @Test
     public void testMultiFFBGetToken() throws Exception {
         final RateLimiter limiter = RateLimiter.builder().
-                withTokePerSecond(1).
+                withTokePerSecond(10).
                 withType(RateLimiter.RateLimiterType.FFTB).
                 build();
-        final CountDownLatch latch = new CountDownLatch(3);
         for ( int j = 0 ;j < 3;j++){
              new Thread(new Runnable() {
                 public void run() {
-                    System.out.println(Thread.currentThread().getId()+"-thread-start.================="+new Date());
-                    boolean print=false;
-                     for ( long i = 0 ;i < Long.MAX_VALUE;i++){
-                        if ( i == 10000){
-                            limiter.setRate(150000);
-                        }
+                    int i = 0;
+                    while (true) {
                         try {
                             limiter.getToken(1);
-                            if (!print){
-                                System.out.println(Thread.currentThread().getId()+"-thread-"+i+".================="+new Date());
-                                print = true;
-                            }
-                        } catch (Exception e){
-//                            System.out.println(e.getMessage());
+                            System.out.println(i+".================="+format(new Date()));
+                            i++;
+                        } catch (Exception e) {
+                        }
+
+                        try {
+                            Thread.sleep(10);
+                        } catch (Exception e) {
                         }
                     }
-                    latch.countDown();
                 }
             }).start();
         }
-        latch.await();
+        synchronized (RateLimiterTest.class){
+            while (true){
+                try {
+                    RateLimiterTest.class.wait();
+                } catch (Exception e){
+
+                }
+            }
+        }
+    }
+
+    private String format(Date date){
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
+        return sf.format(date);
     }
 }
