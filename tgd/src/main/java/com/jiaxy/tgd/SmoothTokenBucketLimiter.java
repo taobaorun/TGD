@@ -17,9 +17,6 @@ import static java.util.concurrent.TimeUnit.*;
  */
 public class SmoothTokenBucketLimiter extends AbstractTokenBucketLimiter {
 
-    private final Object mutex = new Object();
-
-
     @Override
     public double getToken(double requiredToken) {
         long waitMicros;

@@ -26,12 +26,15 @@ public abstract class RateLimiter {
 
     protected double stableIntervalTokenMicros;
 
+    protected final Object mutex = new Object();
 
     public void setRate(double tokenPerSecond){
         if (tokenPerSecond < 0 ){
             throw new IllegalArgumentException("tokenPerSecond must be positive.");
         }
-        doSetRate(tokenPerSecond);
+        synchronized (mutex){
+            doSetRate(tokenPerSecond);
+        }
     }
 
     protected abstract void doSetRate(double tokenPerSecond);

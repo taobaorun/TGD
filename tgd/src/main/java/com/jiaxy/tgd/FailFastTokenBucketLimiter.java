@@ -1,7 +1,5 @@
 package com.jiaxy.tgd;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 /**
  * Title: <br>
  * <p>
@@ -15,7 +13,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class FailFastTokenBucketLimiter extends AbstractTokenBucketLimiter {
 
-    private final Object mutex = new Object();
 
     @Override
     public double getToken(double requiredToken) {
