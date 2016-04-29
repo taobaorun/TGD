@@ -1,4 +1,4 @@
-TGD:三峡大坝（限流）
+TGD:三峡大坝（限流 Token Bucket）
 ======================
 
 Example
